@@ -1,0 +1,14 @@
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+*.class
+*.launch
+local.properties
+.loadpath
+.settings/
+.externalToolBuilders/
+.recommenders/
+.factorypath/
