@@ -44,14 +44,24 @@ loc startServer() {
 
 void stopServer() = shutdown(addr);
 
-
-
-
-
-
 Response getResponse(Request r) {
-  Response resp = jsonResponse(ok(), (), message(1));
-  println("Request arrived");
+
+  items = r.content(#map[str,value]);
+
+  // Use the path as language identifier
+  languageName = substring(r.path, 1);
+  println("Language: " + languageName);
+
+  s = split("/", items["method"]);
+  method = size(s) == 2 ? s[1] : s[0];
+
+  //LSPRequest lspRequest = make(#LSPRequest, method, ());
+  //LSPResponse = languages[languageName](lspRequest);
+
+  // todo: data structure to map[str, value]
+  // JsonValueWriter in webserver handles conversion map -> json
+
+  Response resp = jsonResponse(ok(), (), ());
   return resp;
 }
 
