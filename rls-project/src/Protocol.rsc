@@ -1,5 +1,17 @@
 module Protocol
 
+import util::Maybe;
+
+data LSPRequest
+  = initialize(int pid = -1, str rootUri = "", Trace trace = off())
+  | hover(str textDocument, Position position)
+  | shutdown()
+  ;
+
+data LSPResponse
+  = hover(str contents, Range range)
+  ;
+
 data Trace
   = on()
   | off()
@@ -9,6 +21,18 @@ data Trace
 
 data Diagnostic
   = diagnostic(Range range, str message, int severity = 1, Maybe[value] code = nothing(), str source = "")
+  ;
+
+data Position
+  = position(int line, int character)
+  ;
+
+data Range
+  = range(Position start_, Position end_)
+  ;
+
+data Location
+  = location(loc uri, Range range)
   ;
 
 map[str, int] errorCodes = (
