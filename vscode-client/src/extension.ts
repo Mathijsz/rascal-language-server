@@ -9,9 +9,10 @@ import * as net from 'net';
 import { workspace, Disposable, ExtensionContext } from 'vscode';
 import { LanguageClient, LanguageClientOptions, SettingMonitor, ServerOptions, ErrorAction, ErrorHandler, CloseAction, TransportKind } from 'vscode-languageclient';
 
-function startLangServer(command: string, documentSelector: string | string[]): Disposable {
+function startLangServer(command: string, args: string[], documentSelector: string | string[]): Disposable {
 	const serverOptions: ServerOptions = {
 		command: command,
+		args: args,
 	};
 	const clientOptions: LanguageClientOptions = {
 		documentSelector: documentSelector,
@@ -46,6 +47,7 @@ export function activate(context: ExtensionContext) {
 
     // Server already running and listening on a port
     // context.subscriptions.push(startLangServerTCP(2087, ["python"]));
-    context.subscriptions.push(startLangServerTCP(12366, ["rebel"]));
+	// context.subscriptions.push(startLangServerTCP(12366, ["rebel"]));
+	context.subscriptions.push(startLangServer("rls-tunnel.py", ["rebel"], ["rebel"]));
 }
 
