@@ -45,14 +45,18 @@ loc startServer() {
 void stopServer() = shutdown(addr);
 
 Response getResponse(Request r) {
-
-  items = r.content(#map[str,value]);
-
-  // Use the path as language identifier
+  items = typeCast(#map[str,value], r.content(#map[str,value]));
   languageName = substring(r.path, 1);
-  println("Language: " + languageName);
 
-  s = split("/", items["method"]);
+  if (languageName notin languages) {
+    println("Client indicated non-registered language \"" + languageName + "\"");
+    languageName = "rascal";
+  }
+
+  println("Language: " + languageName);
+  method = typeCast(#str, items["method"]);
+
+  s = split("/", method);
   method = size(s) == 2 ? s[1] : s[0];
 
   //LSPRequest lspRequest = make(#LSPRequest, method, ());
