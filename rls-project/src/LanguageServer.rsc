@@ -21,7 +21,7 @@ map[str name, Handle h] languages = ();
 
 void register(str language, Handle h) {
   languages[language] = h;
-  println("Registered language \"" + language + "\" on endpoint");
+  println("Registered language \"" + language + "\"");
 }
 
 void deregister(str language) {
