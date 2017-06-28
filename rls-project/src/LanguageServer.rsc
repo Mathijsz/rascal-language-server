@@ -44,6 +44,26 @@ loc startServer() {
 
 void stopServer() = shutdown(addr);
 
+LSPRequest mapToRequest(type[&T] t, str method, node params) {
+  map[str,value] paramMap = getKeywordParameters(params);
+  //for (key <- params, typeOf(key) is \node) {
+  //  params[key] = mapToRequest( , key, params[key]);
+  //}
+  return make(t, method, [], params);
+}
+
+map[str,value] toMap(node n) {
+  if (n is none) return ();
+  // TODO: should probably get all parameters instead of just kwargs
+  args = getKeywordParameters(n);
+  for (key <- args, typeOf(args[key]) is adt) {
+    args[key] = toMap(args[key]);
+  }
+  return args;
+}
+
+map[str,value] responseToMap(LSPResponse lspResp) = ("result" : toMap(lspResp));
+
 Response getResponse(Request r) {
   items = typeCast(#map[str,value], r.content(#map[str,value]));
   languageName = substring(r.path, 1);
@@ -53,21 +73,15 @@ Response getResponse(Request r) {
     println("Client indicated non-registered language \"" + languageName + "\"");
     languageName = "rascal";
   }
-
-  println("Language: " + languageName);
   method = typeCast(#str, items["method"]);
-
   s = split("/", method);
-  method = size(s) == 2 ? s[1] : s[0];
+  methodName = size(s) == 2 ? s[1] : s[0];
 
-  //LSPRequest lspRequest = make(#LSPRequest, method, ());
-  //LSPResponse = languages[languageName](lspRequest);
+  LSPRequest lspReq = mapToRequest(#LSPRequest, methodName, typeCast(#node, items["params"]?""() ));
+  lspReq.namespace = size(s) == 2 ? s[0] : "";
+  LSPResponse lspResp = languages[languageName](lspReq);
 
-  // todo: data structure to map[str, value]
-  // JsonValueWriter in webserver handles conversion map -> json
-
-  Response resp = jsonResponse(ok(), (), ());
-  return resp;
+  return jsonResponse(ok(), (), ("id": id) + responseToMap(lspResp));
 }
 
 //void main(list[str] args) {
