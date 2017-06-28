@@ -9,7 +9,7 @@
     Note: this script should be started by the LSP client.
 '''
 
-from sys import stdin, stdout, argv, exit
+from sys import stdin, stdout, stderr, argv, exit
 import requests
 
 rascal_web_addr = "http://127.0.0.1:12366/"
@@ -56,7 +56,7 @@ if __name__ == "__main__":
         resp = requests.post(rascal_web_addr, headers=header, data=msg)
 
         if resp.status_code != requests.codes.ok:
-            print "Could not deliver response to", rascal_web_addr
+            stderr.write("Could not deliver response to", rascal_web_addr)
             break
 
         # Might need a manual Content-Length prefix in the body
