@@ -47,6 +47,7 @@ void stopServer() = shutdown(addr);
 Response getResponse(Request r) {
   items = typeCast(#map[str,value], r.content(#map[str,value]));
   languageName = substring(r.path, 1);
+  id = typeCast(#int, items["id"]?(-1));
 
   if (languageName notin languages) {
     println("Client indicated non-registered language \"" + languageName + "\"");
