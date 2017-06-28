@@ -59,8 +59,8 @@ if __name__ == "__main__":
             stderr.write("Could not deliver response to", rascal_web_addr)
             break
 
-        # Might need a manual Content-Length prefix in the body
-        stdout.write(resp.text)
+        stdout.write("Content-Length: " + str(len(resp.text))
+            + "\r\n\r\n" + resp.text)
 
         # Hack: shut down tunnel after the shutdown message has been delivered
         # to the Rascal web server.
