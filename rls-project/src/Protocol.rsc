@@ -2,14 +2,20 @@ module Protocol
 
 import util::Maybe;
 
-data LSPRequest
-  = initialize(int pid = -1, str rootUri = "", Trace trace = off())
+data LSPRequest (str namespace = "")
+  = initialize(int processId = -1, str rootPath = "", Trace trace = off())
   | hover(str textDocument, Position position)
   | shutdown()
   ;
 
 data LSPResponse
-  = hover(str contents, Range range)
+  = initializeResult(ServerCapabilities capabilities = capabilities(true))
+  | hoverResult(str contents = "", Range range = range(position(0,0),position(0,0)))
+  | none()
+  ;
+
+data ServerCapabilities
+  = capabilities(bool hoverProvider = true)
   ;
 
 data Trace
