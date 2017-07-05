@@ -59,14 +59,36 @@ LSPRequest mapToRequest(type[&T] t, str method, node params) {
 map[str,value] locToRange(loc l) = ("start":  ("line": l.begin.line, "character": l.begin.column),
                                     "end":    ("line": l.end.line,   "character": l.end.column ));
 
+
+list[str] params(Symbol s, str constrName) {
+  defs = #LSPResponse.definitions[s].alternatives;
+
+  if (/constr:\cons(label(constrName, s), _, _, _) := defs) {
+    return [ param.name | param <- constr.symbols ];
+  }
+
+  return [];
+}
+
 map[str,value] toMap(node n) {
   if (n is none) return ();
-  // TODO: should probably get all parameters instead of just kwargs
-  args = getKeywordParameters(n);
-  for (key <- args, typeOf(args[key]) is adt) {
-    args[key] = toMap(args[key]);
+
+  args = getChildren(n);
+  kwargs = getKeywordParameters(n);
+
+  if (size(args) > 0)
+    kwargs += ( p:val | <p,val> <- zip(params(typeOf(n), getName(n)), args));
+
+  for (key <- kwargs) {
+    keyType = typeOf(kwargs[key]);
+
+    if (keyType is \adt)
+      kwargs[key] = toMap(kwargs[key]);
+    if (keyType is \loc)
+      kwargs[key] = key == "range" ? locToRange(kwargs[key]) : l.uri;
+
   }
-  return args;
+  return kwargs;
 }
 
 map[str,value] responseToMap(LSPResponse lspResp) = ("result" : toMap(lspResp));
