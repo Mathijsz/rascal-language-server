@@ -46,10 +46,14 @@ void stopServer() = shutdown(addr);
 
 LSPRequest mapToRequest(type[&T] t, str method, node params) {
   map[str,value] paramMap = getKeywordParameters(params);
-  //for (key <- params, typeOf(key) is \node) {
-  //  params[key] = mapToRequest( , key, params[key]);
-  //}
-  return make(t, method, [], params);
+  for (key <- params, typeOf(key) is \node) {
+    switch (key) {
+      case "capabilities": {
+        paramMap[key] = clientCapabilities(paramMap[key].workspace, paramMap[key].textDocument);
+      }
+    }
+  }
+  return make(t, method, [], paramMap);
 }
 
 map[str,value] toMap(node n) {
