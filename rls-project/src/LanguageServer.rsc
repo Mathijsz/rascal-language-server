@@ -56,6 +56,9 @@ LSPRequest mapToRequest(type[&T] t, str method, node params) {
   return make(t, method, [], paramMap);
 }
 
+map[str,value] locToRange(loc l) = ("start":  ("line": l.begin.line, "character": l.begin.column),
+                                    "end":    ("line": l.end.line,   "character": l.end.column ));
+
 map[str,value] toMap(node n) {
   if (n is none) return ();
   // TODO: should probably get all parameters instead of just kwargs
