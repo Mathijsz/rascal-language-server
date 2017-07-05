@@ -4,18 +4,22 @@ import util::Maybe;
 
 data LSPRequest (str namespace = "")
   = initialize(int processId = -1, str rootPath = "", Trace trace = off())
-  | hover(str textDocument, Position position)
+  | hover(str textDocument, loc position)
   | shutdown()
   ;
 
 data LSPResponse
-  = initializeResult(ServerCapabilities capabilities = capabilities(true))
-  | hoverResult(str contents = "", Range range = range(position(0,0),position(0,0)))
+  = initializeResult(ServerCapabilities capabilities = capabilities())
+  | hoverResult(loc range, str contents = "")
   | none()
   ;
 
+data ClientCapabilities
+  = clientCapabilities(map[str,value] workspace = (), map[str,value] textDocument = ())
+  ;
+
 data ServerCapabilities
-  = capabilities(bool hoverProvider = true)
+  = capabilities(bool hoverProvider = true, bool documentFormattingProvider = true)
   ;
 
 data Trace
@@ -26,19 +30,7 @@ data Trace
   ;
 
 data Diagnostic
-  = diagnostic(Range range, str message, int severity = 1, Maybe[value] code = nothing(), str source = "")
-  ;
-
-data Position
-  = position(int line, int character)
-  ;
-
-data Range
-  = range(Position start_, Position end_)
-  ;
-
-data Location
-  = location(loc uri, Range range)
+  = diagnostic(loc range, str message, int severity = 1, Maybe[value] code = nothing(), str source = "")
   ;
 
 map[str, int] errorCodes = (
