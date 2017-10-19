@@ -125,8 +125,7 @@ Response getResponse(Request r) {
   LSPRequest lspReq = mapToRequest(#LSPRequest, methodName, typeCast(#node, items["params"]?""() ));
   lspReq.namespace = size(s) == 2 ? s[0] : "";
   LSPResponse lspResp = languages[languageName](lspReq);
-
-  return jsonResponse(ok(), (), ("id": id) + responseToMap(lspResp));
+  return jsonResponse(ok(), (), ("jsonrpc": "2.0", "id": id) + responseToMap(lspResp));
 }
 
 //void main(list[str] args) {
