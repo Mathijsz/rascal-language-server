@@ -45,6 +45,12 @@ loc startServer() {
 void stopServer() = shutdown(addr);
 
 LSPRequest mapToRequest(type[&T] t, str method, node params) {
+
+  if (!constructorExistsForType(t, method)) {
+    println("method \'<method>\' invalid or not (yet) supported");
+    return make(t, "invalid", [method]);
+  }
+
   map[str,value] paramMap = getKeywordParameters(params);
   for (key <- params, typeOf(key) is \node) {
     switch (key) {
@@ -55,6 +61,9 @@ LSPRequest mapToRequest(type[&T] t, str method, node params) {
   }
   return make(t, method, [], paramMap);
 }
+
+bool constructorExistsForType(type[&T] t, str constrName)
+  = /constr:\cons(label(constrName,_), _, _, _) := t.definitions;
 
 map[str,value] locToRange(loc l) = ("start":  ("line": l.begin.line, "character": l.begin.column),
                                     "end":    ("line": l.end.line,   "character": l.end.column ));
