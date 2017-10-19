@@ -59,7 +59,12 @@ LSPRequest mapToRequest(type[&T] t, str method, node params) {
       }
     }
   }
-  return make(t, method, [], paramMap);
+  return make(t, method, paramMap);
+}
+
+&T make(type[&T] t, str constructor, map[str,value] arguments) {
+  orderedArguments = [ arguments[name] | name <- findParameters(t, \adt(t.symbol.name, []), constructor) ];
+  return make(t, constructor, orderedArguments, arguments);
 }
 
 bool constructorExistsForType(type[&T] t, str constrName)
