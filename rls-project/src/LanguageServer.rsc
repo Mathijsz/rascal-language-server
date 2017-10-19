@@ -69,11 +69,13 @@ map[str,value] locToRange(loc l) = ("start":  ("line": l.begin.line, "character"
                                     "end":    ("line": l.end.line,   "character": l.end.column ));
 
 
-list[str] params(Symbol s, str constrName) {
-  defs = #LSPResponse.definitions[s].alternatives;
+list[str] findParameters(type[&T] t, Symbol s, str constrName) {
+  defs = t.definitions[s].alternatives;
+
+  str fixName(str param) = (startsWith(param, "_") ? substring(param, 1) : param);
 
   if (/constr:\cons(label(constrName, s), _, _, _) := defs) {
-    return [ param.name | param <- constr.symbols ];
+    return [ fixName(param.name) | param <- constr.symbols ];
   }
 
   return [];
@@ -86,7 +88,7 @@ map[str,value] toMap(node n) {
   kwargs = getKeywordParameters(n);
 
   if (size(args) > 0)
-    kwargs += ( p:val | <p,val> <- zip(params(typeOf(n), getName(n)), args));
+    kwargs += ( p:val | <p,val> <- zip(findParameters(#LSPResponse, typeOf(n), getName(n)), args));
 
   for (key <- kwargs) {
     keyType = typeOf(kwargs[key]);
