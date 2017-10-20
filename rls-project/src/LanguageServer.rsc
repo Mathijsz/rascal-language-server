@@ -52,10 +52,17 @@ LSPRequest mapToRequest(type[&T] t, str method, node params) {
   }
 
   map[str,value] paramMap = getKeywordParameters(params);
-  for (key <- params, typeOf(key) is \node) {
+  for (key <- paramMap, typeOf(paramMap[key]) is \node) {
+    currentNodeParams = getKeywordParameters(typeCast(#node, paramMap[key]));
     switch (key) {
       case "capabilities": {
-        paramMap[key] = clientCapabilities(paramMap[key].workspace, paramMap[key].textDocument);
+        paramMap[key] = clientCapabilities();
+      }
+      case "textDocument": {
+        location = |tmp:///|;
+        location.uri = typeCast(#str, currentNodeParams["uri"]);
+        currentNodeParams["uri"] = location;
+        paramMap[key] = make(#TextDocumentItem, key, currentNodeParams);
       }
     }
   }

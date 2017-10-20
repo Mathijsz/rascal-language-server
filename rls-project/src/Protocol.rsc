@@ -4,8 +4,10 @@ import util::Maybe;
 
 data LSPRequest (str namespace = "")
   = initialize(int processId = -1, str rootPath = "", Trace trace = off())
-  | hover(str textDocument, loc position)
+  | didOpen(TextDocumentItem textDocument)
+  | hover(TextDocumentItem textDocument, loc position)
   | shutdown()
+  | invalid(str method)
   ;
 
 data LSPResponse
@@ -15,12 +17,15 @@ data LSPResponse
   ;
 
 data ClientCapabilities
-  = clientCapabilities(map[str,value] workspace = (), map[str,value] textDocument = ())
+  = clientCapabilities()
   ;
 
 data ServerCapabilities
-  = capabilities(bool hoverProvider = true, bool documentFormattingProvider = true)
+  = capabilities(int textDocumentSync = 2)
   ;
+
+data TextDocumentItem
+  = textDocument(loc uri, str languageId, int version, str text);
 
 data Trace
   = on()
