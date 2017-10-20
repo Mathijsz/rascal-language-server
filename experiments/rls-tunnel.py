@@ -61,6 +61,7 @@ if __name__ == "__main__":
 
         stdout.write("Content-Length: " + str(len(resp.text))
             + "\r\n\r\n" + resp.text)
+        stdout.flush()
 
         # Hack: shut down tunnel after the shutdown message has been delivered
         # to the Rascal web server.
