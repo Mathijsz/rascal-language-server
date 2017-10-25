@@ -70,7 +70,7 @@ LSPRequest mapToRequest(type[&T] t, str method, node params) {
 }
 
 &T make(type[&T] t, str constructor, map[str,value] arguments) {
-  orderedArguments = [ arguments[name] | name <- findParameters(t, \adt(t.symbol.name, []), constructor) ];
+  orderedArguments = [ arguments[name] | name <- findParameters(t, \adt(t.symbol.name, []), constructor), name in arguments ];
   return make(t, constructor, orderedArguments, arguments);
 }
 
@@ -80,17 +80,22 @@ bool constructorExistsForType(type[&T] t, str constrName)
 map[str,value] locToRange(loc l) = ("start":  ("line": l.begin.line, "character": l.begin.column),
                                     "end":    ("line": l.end.line,   "character": l.end.column ));
 
+//map[str, type[&T]] reifType = (
+//  "LSPResponse" : #LSPResponse,
+//  "LSPRequest" : #LSPRequest
+//);
 
 list[str] findParameters(type[&T] t, Symbol s, str constrName) {
   defs = t.definitions[s].alternatives;
 
   str fixName(str param) = (startsWith(param, "_") ? substring(param, 1) : param);
 
-  if (/constr:\cons(label(constrName, s), _, _, _) := defs) {
-    return [ fixName(param.name) | param <- constr.symbols ];
+  syms = [];
+  for (/constr:\cons(label(constrName, s), _, _, _) := defs, size(constr.symbols) > size(syms)) {
+    syms = constr.symbols;
   }
 
-  return [];
+  return [ fixName(param.name) | param <- syms ];
 }
 
 map[str,value] toMap(node n) {
