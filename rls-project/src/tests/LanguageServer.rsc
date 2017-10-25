@@ -15,6 +15,10 @@ LSPResponse testHandler(LSPRequest lspReq) {
       println("got didOpen (<lspReq.textDocument.uri>)");
       return none();
     }
+    case didClose(_): {
+      println("got didClose (<lspReq.textDocument.uri>)");
+      return none();
+    }
     case shutdown(): {
       println("got shutdown");
       return none();

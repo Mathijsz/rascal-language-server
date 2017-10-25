@@ -6,6 +6,7 @@ data LSPRequest (str namespace = "")
   = initialize(int processId = -1, str rootPath = "", Trace trace = off())
   | didOpen(TextDocumentItem textDocument)
   | hover(TextDocumentItem textDocument, loc position)
+  | didClose(TextDocumentItem textDocument)
   | shutdown()
   | invalid(str method)
   ;
@@ -25,7 +26,9 @@ data ServerCapabilities
   ;
 
 data TextDocumentItem
-  = textDocument(loc uri, str languageId, int version, str text);
+  = textDocument(loc uri, str languageId, int version, str text)
+  | textDocument(loc uri)
+  ;
 
 data Trace
   = on()
