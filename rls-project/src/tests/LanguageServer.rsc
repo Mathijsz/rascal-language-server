@@ -9,7 +9,7 @@ LSPResponse testHandler(LSPRequest lspReq) {
   switch (lspReq) {
     case initialize(): {
       println("got init");
-      return initializeResult(capabilities=capabilities(textDocumentSync=2));
+      return initializeResult(capabilities=capabilities(textDocumentSync=2,hoverProvider=true));
     }
     case didOpen(_): {
       println("got didOpen (<lspReq.textDocument.uri>)");
@@ -18,6 +18,10 @@ LSPResponse testHandler(LSPRequest lspReq) {
     case didClose(_): {
       println("got didClose (<lspReq.textDocument.uri>)");
       return none();
+    }
+    case hover(_): {
+      println("got hover request (<lspReq.textDocument.uri>)");
+      return hoverResult("test string");
     }
     case shutdown(): {
       println("got shutdown");
