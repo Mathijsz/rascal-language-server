@@ -13,7 +13,7 @@ data LSPRequest (str namespace = "")
 
 data LSPResponse
   = initializeResult(ServerCapabilities capabilities = capabilities())
-  | hoverResult(loc range, str contents = "")
+  | hoverResult(str contents, loc range)
   | none()
   ;
 
@@ -22,7 +22,7 @@ data ClientCapabilities
   ;
 
 data ServerCapabilities
-  = capabilities(int textDocumentSync = 2)
+  = capabilities(int textDocumentSync = 2, bool hoverProvider = true)
   ;
 
 data TextDocument

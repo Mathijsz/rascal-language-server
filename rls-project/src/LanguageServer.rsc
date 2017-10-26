@@ -59,15 +59,30 @@ LSPRequest mapToRequest(type[&T] t, str method, node params) {
         paramMap[key] = clientCapabilities();
       }
       case "textDocument": {
-        location = |tmp:///|;
-        location.uri = typeCast(#str, currentNodeParams["uri"]);
-        currentNodeParams["uri"] = location;
+        currentNodeParams["uri"] = toLocation(typeCast(#str, currentNodeParams["uri"]));
+
+        if ("position" in paramMap) {
+          pm = getKeywordParameters(typeCast(#node, paramMap["position"]));
+          tuple[int line, int character] pos = <typeCast(#int, pm["line"]), typeCast(#int, pm["character"])>;
+          currentNodeParams["uri"] = toLocationWithPosition(currentNodeParams["uri"], pos);
+        }
+
         paramMap[key] = make(#TextDocument, key, currentNodeParams);
       }
     }
   }
   return make(t, method, paramMap);
 }
+
+public loc toLocationWithPosition(loc s, tuple[int line, int character] pos) {
+  if (/<scheme:.*>\:\/\/<rest:.*>/ := s.uri) {
+    return |<scheme>://<rest>|(positionToOffset(s, pos.line, pos.character), 0, pos, pos);
+  }
+  return |cwd:///<s.uri>|(positionToOffset(s, pos.line, pos.character), 0, pos, pos);
+}
+
+int positionToOffset(loc document, int lineNr, int character)
+   = character + sum([ size(line) + 1 | line <- take(lineNr - 1, readFileLines(document)) ]);
 
 &T make(type[&T] t, str constructor, map[str,value] arguments) {
   orderedArguments = [ arguments[name] | name <- findParameters(t, \adt(t.symbol.name, []), constructor), name in arguments ];
