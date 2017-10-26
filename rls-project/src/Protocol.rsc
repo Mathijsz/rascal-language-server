@@ -8,6 +8,7 @@ data LSPRequest (str namespace = "")
   | didClose(TextDocument textDocument)
   | hover(TextDocument textDocument)
   | shutdown()
+  | cancelRequest(int id)
   | invalid(str method)
   ;
 
