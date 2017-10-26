@@ -15,6 +15,7 @@ data LSPRequest (str namespace = "")
 data LSPResponse
   = initializeResult(ServerCapabilities capabilities = capabilities())
   | hoverResult(str contents, loc range)
+  | hoverResult(str contents)
   | none()
   ;
 

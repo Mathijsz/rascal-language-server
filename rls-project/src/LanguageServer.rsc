@@ -120,7 +120,7 @@ map[str,value] toMap(node n) {
   kwargs = getKeywordParameters(n);
 
   if (size(args) > 0)
-    kwargs += ( p:val | <p,val> <- zip(findParameters(#LSPResponse, typeOf(n), getName(n)), args));
+    kwargs += ( p:val | <p,val> <- zip(take(size(args), findParameters(#LSPResponse, typeOf(n), getName(n))), args));
 
   for (key <- kwargs) {
     keyType = typeOf(kwargs[key]);
