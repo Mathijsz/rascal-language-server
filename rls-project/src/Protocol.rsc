@@ -4,9 +4,9 @@ import util::Maybe;
 
 data LSPRequest (str namespace = "")
   = initialize(int processId = -1, str rootPath = "", Trace trace = off())
-  | didOpen(TextDocumentItem textDocument)
-  | hover(TextDocumentItem textDocument, loc position)
-  | didClose(TextDocumentItem textDocument)
+  | didOpen(TextDocument textDocument)
+  | didClose(TextDocument textDocument)
+  | hover(TextDocument textDocument)
   | shutdown()
   | invalid(str method)
   ;
@@ -25,7 +25,7 @@ data ServerCapabilities
   = capabilities(int textDocumentSync = 2)
   ;
 
-data TextDocumentItem
+data TextDocument
   = textDocument(loc uri, str languageId, int version, str text)
   | textDocument(loc uri)
   ;

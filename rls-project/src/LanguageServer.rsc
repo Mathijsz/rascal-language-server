@@ -62,7 +62,7 @@ LSPRequest mapToRequest(type[&T] t, str method, node params) {
         location = |tmp:///|;
         location.uri = typeCast(#str, currentNodeParams["uri"]);
         currentNodeParams["uri"] = location;
-        paramMap[key] = make(#TextDocumentItem, key, currentNodeParams);
+        paramMap[key] = make(#TextDocument, key, currentNodeParams);
       }
     }
   }
