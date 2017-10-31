@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
         response.size = 0;
 
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, get_response_data);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&result);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&response);
 
         CURLcode res = curl_easy_perform(curl);
 
@@ -138,7 +138,7 @@ int main(int argc, char *argv[])
         }
 
         fprintf(stdout, "Content-Length: %d\r\n\r\n", response.size);
-        fwrite(response.mem, result.size, 1, stdout);
+        fwrite(response.mem, response.size, 1, stdout);
         fflush(stdout);
 
         free(data);
