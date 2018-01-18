@@ -41,7 +41,6 @@ size_t get_response_data(void *ptr, size_t size, size_t nmemb, void *userdata)
 
 char *read_msg(size_t *length)
 {
-    int c;
     char *data = NULL;
     char line[512];
 
@@ -57,9 +56,8 @@ char *read_msg(size_t *length)
 
     }
 
-    if (*length == 0) {
+    if (*length == 0)
         return NULL;
-    }
 
     data = malloc((*length + 1) * sizeof(char));
 
@@ -87,9 +85,8 @@ int main(int argc, char *argv[])
 
     char *language = "rascal";
 
-    if (argc > 1) {
+    if (argc > 1)
         language = argv[1];
-    }
 
     size_t size = strlen(rascal_web_addr) + strlen(language);
     char *address = malloc(size * sizeof(char));
@@ -115,9 +112,8 @@ int main(int argc, char *argv[])
 
         data = read_msg(&length);
 
-        if (length == 0) {
+        if (length == 0)
             continue;
-        }
 
         curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, length);
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
@@ -143,7 +139,6 @@ int main(int argc, char *argv[])
 
         free(data);
         free(response.mem);
-
     }
 
     free(address);
