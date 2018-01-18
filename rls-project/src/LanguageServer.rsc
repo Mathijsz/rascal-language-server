@@ -129,7 +129,19 @@ map[str,value] toMap(node n) {
   return kwargs;
 }
 
-map[str,value] responseToMap(LSPResponse lspResp) = ("result" : toMap(lspResp));
+Response errorResponse(int id, str errorType, str message) = errorResponse(id, errorType, message, 0);
+Response errorResponse(int id, str errorType, str message, value _data) = response(id, "error", errorMsg(message, _data, errorCodes[errorType]?"UnknownErrorCode"));
+
+Response okResponse(int id, node n) = response(id, "result", n);
+
+Response response(int id, str respType, node n)
+  = jsonResponse(ok(), (),
+      (
+        "jsonrpc": "2.0",
+        "id": id,
+        respType: toMap(n)
+      )
+    );
 
 Response getResponse(Request r) {
   items = typeCast(#map[str,value], r.content(#map[str,value]));
@@ -139,6 +151,7 @@ Response getResponse(Request r) {
   if (languageName notin languages) {
     println("Client indicated non-registered language \"" + languageName + "\"");
     languageName = "rascal";
+    return errorResponse(id, "InvalidRequest", "Unknown language");
   }
   method = typeCast(#str, items["method"]);
   s = split("/", method);
@@ -147,7 +160,8 @@ Response getResponse(Request r) {
   LSPRequest lspReq = mapToRequest(#LSPRequest, methodName, typeCast(#node, items["params"]?""() ));
   lspReq.namespace = size(s) == 2 ? s[0] : "";
   LSPResponse lspResp = languages[languageName](lspReq);
-  return jsonResponse(ok(), (), ("jsonrpc": "2.0", "id": id) + responseToMap(lspResp));
+
+  return okResponse(id, lspResp);
 }
 
 //void main(list[str] args) {
