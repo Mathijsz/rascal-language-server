@@ -13,7 +13,7 @@ import Node;
 import Protocol;
 
 // Address of the server
-loc addr = |http://10.0.0.33:12366|;
+loc addr = |http://127.0.0.1:12366|;
 
 alias Handle = LSPResponse (LSPRequest);
 
