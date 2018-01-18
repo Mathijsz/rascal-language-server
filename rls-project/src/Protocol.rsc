@@ -4,10 +4,13 @@ import util::Maybe;
 
 data LSPRequest (str language = "", str namespace = "", int reqId = -1)
   = initialize(int processId = -1, str rootPath = "", Trace trace = off())
+  | initialized()
   | didOpen(TextDocument textDocument)
   | didClose(TextDocument textDocument)
   | hover(TextDocument textDocument)
+  | definition(TextDocument textDocument)
   | shutdown()
+  | exit()
   | cancelRequest(int id)
   | invalid(str method)
   ;
@@ -16,6 +19,7 @@ data LSPResponse
   = initializeResult(ServerCapabilities capabilities = capabilities())
   | hoverResult(str contents, loc range)
   | hoverResult(str contents)
+  | locationResult(str uri, loc range)
   | none()
   ;
 
@@ -24,7 +28,10 @@ data ClientCapabilities
   ;
 
 data ServerCapabilities
-  = capabilities(int textDocumentSync = 2, bool hoverProvider = true)
+  = capabilities(int textDocumentSync = textDocumentSyncKind["Full"],
+      bool hoverProvider = false,
+      bool definitionProvider = true
+    )
   ;
 
 data TextDocument
@@ -41,6 +48,10 @@ data Trace
 
 data Diagnostic
   = diagnostic(loc range, str message, int severity = 1, Maybe[value] code = nothing(), str source = "")
+  ;
+
+data ResponseError
+  = errorMsg(str message, value _data, int code)
   ;
 
 map[str, int] errorCodes = (
@@ -61,4 +72,10 @@ map[str, int] diagSeverity = (
   "Warning":      2,
   "Information":  3,
   "Hint":         4
+);
+
+map[str, int] textDocumentSyncKind = (
+  "None":         0,
+  "Full":         1,
+  "Incremental":  2
 );
