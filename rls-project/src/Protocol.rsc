@@ -2,7 +2,7 @@ module Protocol
 
 import util::Maybe;
 
-data LSPRequest (str namespace = "")
+data LSPRequest (str language = "", str namespace = "", int reqId = -1)
   = initialize(int processId = -1, str rootPath = "", Trace trace = off())
   | didOpen(TextDocument textDocument)
   | didClose(TextDocument textDocument)

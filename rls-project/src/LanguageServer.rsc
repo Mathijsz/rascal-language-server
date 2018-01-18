@@ -159,6 +159,8 @@ Response getResponse(Request r) {
 
   LSPRequest lspReq = mapToRequest(#LSPRequest, methodName, typeCast(#node, items["params"]?""() ));
   lspReq.namespace = size(s) == 2 ? s[0] : "";
+  lspReq.language = languageName;
+  lspReq.reqId = id;
   LSPResponse lspResp = languages[languageName](lspReq);
 
   return okResponse(id, lspResp);
