@@ -82,7 +82,7 @@ public loc toLocationWithPosition(loc s, tuple[int line, int character] pos) {
 }
 
 int positionToOffset(loc document, int lineNr, int character)
-   = character + sum([ size(line) + 1 | line <- take(lineNr - 1, readFileLines(document)) ]);
+   = character + sum([0]+[ size(line) + 1 | line <- take(lineNr, readFileLines(document)) ]);
 
 &T make(type[&T] t, str constructor, map[str,value] arguments) {
   orderedArguments = [ arguments[name] | name <- findParameters(t, \adt(t.symbol.name, []), constructor), name in arguments ];
@@ -94,11 +94,6 @@ bool constructorExistsForType(type[&T] t, str constrName)
 
 map[str,value] locToRange(loc l) = ("start":  ("line": l.begin.line, "character": l.begin.column),
                                     "end":    ("line": l.end.line,   "character": l.end.column ));
-
-//map[str, type[&T]] reifType = (
-//  "LSPResponse" : #LSPResponse,
-//  "LSPRequest" : #LSPRequest
-//);
 
 list[str] findParameters(type[&T] t, Symbol s, str constrName) {
   defs = t.definitions[s].alternatives;
