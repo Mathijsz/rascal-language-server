@@ -56,7 +56,8 @@ if __name__ == "__main__":
         resp = requests.post(rascal_web_addr, headers=header, data=msg)
 
         if resp.status_code != requests.codes.ok:
-            stderr.write("Could not deliver response to", rascal_web_addr)
+            stderr.write("Could not deliver response to " + rascal_web_addr
+                + ": " + str(resp.status_code))
             break
 
         stdout.write("Content-Length: " + str(len(resp.text))
