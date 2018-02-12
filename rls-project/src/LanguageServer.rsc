@@ -13,6 +13,8 @@ import Node;
 
 import Protocol;
 
+import DefaultKWs;
+
 // Address of the server
 loc addr = |http://127.0.0.1:12366|;
 
@@ -154,11 +156,14 @@ list[str] findParameters(type[&T] t, Symbol s, str constrName) {
 value toMap(node n) {
   if (n is none) return ();
 
+  parameters = findParameters(#LSPResponse, typeOf(n), getName(n));
+  n = setKeywordParameters(n, getDefaultKeywordParams(getName(n), parameters));
+
   args = getChildren(n);
   kwargs = getKeywordParameters(n);
 
   if (size(args) > 0)
-    kwargs += ( p:val | <p,val> <- zip(take(size(args), findParameters(#LSPResponse, typeOf(n), getName(n))), args));
+    kwargs += ( p:val | <p,val> <- zip(take(size(args), parameters), args));
 
   for (key <- kwargs) {
     keyType = typeOf(kwargs[key]);
