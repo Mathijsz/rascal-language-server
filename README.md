@@ -45,6 +45,8 @@ Editors still need to know what type of file is open, so that they can communica
 </plist>
 ```
 
+Note that this is needed *in addition* to the installation and configuration of a LSP plugin.
+
 For a language `LANGUAGE` with file extension `*.ext`:
 
 ### vim/nvim
