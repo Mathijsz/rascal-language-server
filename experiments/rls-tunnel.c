@@ -45,11 +45,12 @@ char *read_msg(size_t *length)
     char line[512];
 
     while (fgets(line, 512, stdin) != NULL) {
+
         if (strncmp(line, "Content-Length: ", 16) == 0)
             *length = atoi(line + 16);
 
         if (*length <= 0)
-            continue;
+            break;
 
         if (strcmp(line, "\r\n") == 0)
             break;
@@ -82,6 +83,7 @@ int main(int argc, char *argv[])
 
     CURL *curl = curl_easy_init();
     struct curl_slist *headers = NULL;
+    size_t empty_count = 0, empty_threshold = 10;
 
     char *language = "rascal";
 
@@ -112,8 +114,15 @@ int main(int argc, char *argv[])
 
         data = read_msg(&length);
 
-        if (length == 0)
+        if (length == 0) {
+            empty_count++;
+            // Some clients don't send a shutdown and keep sending blank lines
+            if (empty_count >= empty_threshold) {
+                break;
+            }
             continue;
+        }
+        empty_count = 0;
 
         curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, length);
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
