@@ -3,6 +3,7 @@ module LanguageServer
 import IO;
 import String;
 import Map;
+import Set;
 import List;
 import util::Webserver;
 import lang::json::IO;
