@@ -151,7 +151,7 @@ list[str] findParameters(type[&T] t, Symbol s, str constrName) {
   return [ fixName(param.name) | param <- syms ];
 }
 
-map[str,value] toMap(node n) {
+value toMap(node n) {
   if (n is none) return ();
 
   args = getChildren(n);
@@ -165,6 +165,8 @@ map[str,value] toMap(node n) {
 
     if (key == "locations")
       return [ ("uri": l.uri, "range": locToRange(l)) | l <- typeCast(#list[loc], kwargs[key]) ];
+    else if (keyType is \list)
+      kwargs[key] = [ toMap(k) | k <- typeCast(#list[node], kwargs[key]) ];
     if (keyType is \adt)
       kwargs[key] = toMap(kwargs[key]);
     if (keyType is \loc)

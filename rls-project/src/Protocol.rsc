@@ -20,6 +20,8 @@ data LSPResponse
   | hoverResult(str contents, loc range)
   | hoverResult(str contents)
   | locationResult(str uri, loc range)
+  | locationsResult(list[loc] locations)
+  | publishDiagnostics(str uri, list[Diagnostic] diagnostics)
   | none()
   ;
 
@@ -30,13 +32,20 @@ data ClientCapabilities
 data ServerCapabilities
   = capabilities(int textDocumentSync = textDocumentSyncKind["Full"],
       bool hoverProvider = false,
-      bool definitionProvider = true
+      bool definitionProvider = true,
+      bool referencesProvider = true
     )
   ;
 
 data TextDocument
   = textDocument(loc uri, str languageId, int version, str text)
+  | textDocument(loc uri, int version)
   | textDocument(loc uri)
+  ;
+
+data DocumentChange
+  = contentChanges(str text, loc range, int rangeLength)
+  | contentChanges(str text)
   ;
 
 data Trace
