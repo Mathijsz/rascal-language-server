@@ -157,7 +157,7 @@ value toMap(node n) {
   if (n is none) return ();
 
   parameters = findParameters(#LSPResponse, typeOf(n), getName(n));
-  n = setKeywordParameters(n, getDefaultKeywordParams(getName(n), parameters));
+  n = setKeywordParameters(n, getDefaultKeywordParams(getName(n), parameters) - getKeywordParameters(n));
 
   args = getChildren(n);
   kwargs = getKeywordParameters(n);
