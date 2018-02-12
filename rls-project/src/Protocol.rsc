@@ -7,8 +7,11 @@ data LSPRequest (str language = "", str namespace = "", int reqId = -1)
   | initialized()
   | didOpen(TextDocument textDocument)
   | didClose(TextDocument textDocument)
+  | didChange(TextDocument textDocument, list[DocumentChange] contentChanges)
+  | didSave(TextDocument textDocument)
   | hover(TextDocument textDocument)
   | definition(TextDocument textDocument)
+  | references(TextDocument textDocument)
   | shutdown()
   | exit()
   | cancelRequest(int id)
@@ -56,14 +59,14 @@ data Trace
   ;
 
 data Diagnostic
-  = diagnostic(loc range, str message, int severity = 1, Maybe[value] code = nothing(), str source = "")
+  = diagnostic(loc range, str message, int severity = diagSeverity["Hint"])
   ;
 
 data ResponseError
   = errorMsg(str message, value _data, int code)
   ;
 
-map[str, int] errorCodes = (
+public map[str, int] errorCodes = (
   "ParseError" :            -32700,
   "InvalidRequest" :        -32600,
   "MethodNotFound" :        -32601,
@@ -76,14 +79,14 @@ map[str, int] errorCodes = (
   "RequestCancelled" :      -32800
 );
 
-map[str, int] diagSeverity = (
+public map[str, int] diagSeverity = (
   "Error" :       1,
   "Warning":      2,
   "Information":  3,
   "Hint":         4
 );
 
-map[str, int] textDocumentSyncKind = (
+public map[str, int] textDocumentSyncKind = (
   "None":         0,
   "Full":         1,
   "Incremental":  2
