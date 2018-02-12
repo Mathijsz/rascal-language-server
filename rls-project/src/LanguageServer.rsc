@@ -153,6 +153,14 @@ Response getResponse(Request r) {
     languageName = "rascal";
     return errorResponse(id, "InvalidRequest", "Unknown language");
   }
+
+  if ("method" notin items && "error" in items) {
+    errors = typeCast(#node, items["error"]);
+    errorName = getOneFrom(invert(errorCodes)[errors.code]);
+    println("Client indicated error <errorName>: <errors.message>");
+    return okResponse(id, none());
+  }
+
   method = typeCast(#str, items["method"]);
   s = split("/", method);
   methodName = size(s) == 2 ? s[1] : s[0];
