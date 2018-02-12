@@ -193,7 +193,11 @@ Response response(int id, str respType, node n)
         "id": id,
         respType: toMap(n)
       )
+      - (hasNewMethod(n) ? ("id" : -1) : ())
+      + (hasNewMethod(n) ? ("method" : n.methodOverride) : ())
     );
+
+bool hasNewMethod(node n) = n has methodOverride && n.methodOverride != "";
 
 Response getResponse(Request r) {
   items = typeCast(#map[str,value], r.content(#map[str,value]));
@@ -223,10 +227,8 @@ Response getResponse(Request r) {
   lspReq.reqId = id;
   LSPResponse lspResp = languages[languageName](lspReq);
 
+  if (lspResp.methodOverride != "")
+    return response(id, "params", lspResp);
+
   return okResponse(id, lspResp);
 }
-
-//void main(list[str] args) {
-//  println("Starting language server");
-//  startServer();
-//}

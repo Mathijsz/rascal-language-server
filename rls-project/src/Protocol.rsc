@@ -18,7 +18,7 @@ data LSPRequest (str language = "", str namespace = "", int reqId = -1)
   | invalid(str method)
   ;
 
-data LSPResponse
+data LSPResponse (str methodOverride = "")
   = initializeResult(ServerCapabilities capabilities = capabilities())
   | hoverResult(str contents, loc range)
   | hoverResult(str contents)
