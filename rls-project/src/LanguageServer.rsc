@@ -12,7 +12,6 @@ import Type;
 import Node;
 
 import Protocol;
-
 import DefaultKWs;
 
 // Address of the server
@@ -79,7 +78,6 @@ LSPRequest mapToRequest(type[&T] t, str method, node params) {
       plist = typeCast(#list[node], paramMap[key]);
       switch (key) {
         case "contentChanges": {
-          println("got contentChanges");
           list[DocumentChange] changes = [];
           for (change <- plist) {
             changeParams = getKeywordParameters(change);
@@ -102,15 +100,11 @@ LSPRequest mapToRequest(type[&T] t, str method, node params) {
 alias Position = tuple[int line, int character];
 alias Range = tuple[Position begin, Position end];
 
-Position readPosition(node pos) {
-  pm = getKeywordParameters(typeCast(#node, pos));
-  return <typeCast(#int, pm["line"]), typeCast(#int, pm["character"])>;
-}
+Position readPosition(node pos) = <typeCast(#int, pm["line"]), typeCast(#int, pm["character"])>
+  when pm := getKeywordParameters(typeCast(#node, pos));
 
-Range readRange(node range) {
-  rm = getKeywordParameters(typeCast(#node, range));
-  return <readPosition(rm["start"]), readPosition(rm["end"])>;
-}
+Range readRange(node range) = <readPosition(rm["start"]), readPosition(rm["end"])>
+  when rm := getKeywordParameters(typeCast(#node, range));
 
 public loc toLocation(loc s, Position pos) {
   if (/<scheme:.*>\:\/\/<rest:.*>/ := s.uri) {
@@ -129,10 +123,11 @@ public loc toLocation(loc s, Range range, int rangeLength) {
 int positionToOffset(loc document, int lineNr, int character)
    = character + sum([0]+[ size(line) + 1 | line <- take(lineNr, readFileLines(document)) ]);
 
-&T make(type[&T] t, str constructor, map[str,value] arguments) {
-  orderedArguments = [ arguments[name] | name <- findParameters(t, \adt(t.symbol.name, []), constructor), name in arguments ];
-  return make(t, constructor, orderedArguments, arguments);
-}
+&T make(type[&T] t, str constructor, map[str,value] arguments)
+  = make(t, constructor, orderedArguments, arguments)
+      when params := findParameters(t, \adt(t.symbol.name, []), constructor),
+           orderedArguments := [ arguments[name] | name <- params, name in arguments ];
+
 
 bool constructorExistsForType(type[&T] t, str constrName)
   = /constr:\cons(label(constrName,_), _, _, _) := t.definitions;

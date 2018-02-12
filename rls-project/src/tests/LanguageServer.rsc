@@ -4,27 +4,34 @@ import LanguageServer;
 import Protocol;
 
 import IO;
+import Node;
+import Check;
 
 LSPResponse testHandler(LSPRequest lspReq) {
+  println("got request: <getName(lspReq)>");
   switch (lspReq) {
     case initialize(): {
-      println("got init");
-      return initializeResult(capabilities=capabilities(textDocumentSync=2,hoverProvider=true));
+      //return initializeResult(capabilities=capabilities(textDocumentSync=2,hoverProvider=true));
+      return initializeResult();
     }
     case didOpen(_): {
-      println("got didOpen (<lspReq.textDocument.uri>)");
+      println("didOpen (<lspReq.textDocument.uri>)");
       return none();
     }
     case didClose(_): {
-      println("got didClose (<lspReq.textDocument.uri>)");
+      println("didClose (<lspReq.textDocument.uri>)");
       return none();
     }
     case hover(_): {
-      println("got hover request (<lspReq.textDocument.uri>)");
-      return hoverResult("test string");
+      println("hover request (<lspReq.textDocument.uri>)");
+      return hoverResult("teststring");
     }
     case shutdown(): {
-      println("got shutdown");
+      println("shutdown");
+      return none();
+    }
+    case exit(): {
+      println("client exited");
       return none();
     }
     default: {
