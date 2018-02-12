@@ -40,14 +40,7 @@ function startLangServerTCP(addr: number, documentSelector: string[]): Disposabl
 }
 
 export function activate(context: ExtensionContext) {
-
-	// Handles startup of the server by command name
-	// Communicates via stdin/stdout
-    // context.subscriptions.push(startLangServer("pyls", ["python"]));
-
-    // Server already running and listening on a port
-    // context.subscriptions.push(startLangServerTCP(2087, ["python"]));
-	// context.subscriptions.push(startLangServerTCP(12366, ["rebel"]));
-	context.subscriptions.push(startLangServer("rls-tunnel.py", ["rebel"], ["rebel"]));
+	// context.subscriptions.push(startLangServer("rls-tunnel.py", ["dql"], ["dql"]));
+	context.subscriptions.push(startLangServer("rls-tunnel", ["dql"], ["dql"]));
 }
 
