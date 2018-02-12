@@ -52,33 +52,75 @@ LSPRequest mapToRequest(type[&T] t, str method, node params) {
   }
 
   map[str,value] paramMap = getKeywordParameters(params);
-  for (key <- paramMap, typeOf(paramMap[key]) is \node) {
-    currentNodeParams = getKeywordParameters(typeCast(#node, paramMap[key]));
-    switch (key) {
-      case "capabilities": {
-        paramMap[key] = clientCapabilities();
-      }
-      case "textDocument": {
-        currentNodeParams["uri"] = toLocation(typeCast(#str, currentNodeParams["uri"]));
 
-        if ("position" in paramMap) {
-          pm = getKeywordParameters(typeCast(#node, paramMap["position"]));
-          tuple[int line, int character] pos = <typeCast(#int, pm["line"]), typeCast(#int, pm["character"])>;
-          currentNodeParams["uri"] = toLocationWithPosition(currentNodeParams["uri"], pos);
+  for (key <- paramMap) {
+    ptype = typeOf(paramMap[key]);
+
+    if (ptype is \node) {
+      currentNodeParams = getKeywordParameters(typeCast(#node, paramMap[key]));
+      switch (key) {
+        case "capabilities": {
+          paramMap[key] = clientCapabilities();
         }
+        case "textDocument": {
+          currentNodeParams["uri"] = toLocation(typeCast(#str, currentNodeParams["uri"]));
 
-        paramMap[key] = make(#TextDocument, key, currentNodeParams);
+          if ("position" in paramMap)
+            currentNodeParams["uri"] = toLocation(currentNodeParams["uri"], readPosition(typeCast(#node, paramMap["position"])));
+
+          paramMap[key] = make(#TextDocument, key, currentNodeParams);
+        }
+      }
+    }
+    if (ptype is \list) {
+      plist = typeCast(#list[node], paramMap[key]);
+      switch (key) {
+        case "contentChanges": {
+          println("got contentChanges");
+          list[DocumentChange] changes = [];
+          for (change <- plist) {
+            changeParams = getKeywordParameters(change);
+            if ("range" in changeParams && "rangeLength" in changeParams) {
+              length = typeCast(#int, changeParams["rangeLength"]);
+              changes += contentChanges(typeCast(#str, changeParams["text"]),
+                toLocation(readRange(changeParams["range"]), length), length);
+              continue;
+            }
+            changes += contentChanges(typeCast(#str, changeParams["text"]));
+          }
+          paramMap[key] = changes;
+        }
       }
     }
   }
   return make(t, method, paramMap);
 }
 
-public loc toLocationWithPosition(loc s, tuple[int line, int character] pos) {
+alias Position = tuple[int line, int character];
+alias Range = tuple[Position begin, Position end];
+
+Position readPosition(node pos) {
+  pm = getKeywordParameters(typeCast(#node, pos));
+  return <typeCast(#int, pm["line"]), typeCast(#int, pm["character"])>;
+}
+
+Range readRange(node range) {
+  rm = getKeywordParameters(typeCast(#node, range));
+  return <readPosition(rm["start"]), readPosition(rm["end"])>;
+}
+
+public loc toLocation(loc s, Position pos) {
   if (/<scheme:.*>\:\/\/<rest:.*>/ := s.uri) {
     return |<scheme>://<rest>|(positionToOffset(s, pos.line, pos.character), 0, pos, pos);
   }
   return |cwd:///<s.uri>|(positionToOffset(s, pos.line, pos.character), 0, pos, pos);
+}
+
+public loc toLocation(loc s, Range range, int rangeLength) {
+  if (/<scheme:.*>\:\/\/<rest:.*>/ := s.uri) {
+    return |<scheme>://<rest>|(positionToOffset(s, range.begin.line, range.begin.character), rangeLength, range.begin, range.end);
+  }
+  return |cwd:///<s.uri>|(positionToOffset(s, range.begin.line, range.begin.character), rangeLength, range.begin, range.end);
 }
 
 int positionToOffset(loc document, int lineNr, int character)
@@ -120,6 +162,8 @@ map[str,value] toMap(node n) {
   for (key <- kwargs) {
     keyType = typeOf(kwargs[key]);
 
+    if (key == "locations")
+      return [ ("uri": l.uri, "range": locToRange(l)) | l <- typeCast(#list[loc], kwargs[key]) ];
     if (keyType is \adt)
       kwargs[key] = toMap(kwargs[key]);
     if (keyType is \loc)
