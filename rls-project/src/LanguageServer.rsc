@@ -100,7 +100,7 @@ LSPRequest mapToRequest(type[&T] t, str method, node params) {
 alias Position = tuple[int line, int character];
 alias Range = tuple[Position begin, Position end];
 
-Position readPosition(node pos) = <typeCast(#int, pm["line"]), typeCast(#int, pm["character"])>
+Position readPosition(node pos) = <1 + typeCast(#int, pm["line"]), typeCast(#int, pm["character"])>
   when pm := getKeywordParameters(typeCast(#node, pos));
 
 Range readRange(node range) = <readPosition(rm["start"]), readPosition(rm["end"])>
@@ -121,7 +121,7 @@ public loc toLocation(loc s, Range range, int rangeLength) {
 }
 
 int positionToOffset(loc document, int lineNr, int character)
-   = character + sum([0]+[ size(line) + 1 | line <- take(lineNr, readFileLines(document)) ]);
+   = character + sum([0]+[ size(line) + 1 | line <- take(lineNr - 1, readFileLines(document)) ]);
 
 &T make(type[&T] t, str constructor, map[str,value] arguments)
   = make(t, constructor, orderedArguments, arguments)
@@ -132,8 +132,17 @@ int positionToOffset(loc document, int lineNr, int character)
 bool constructorExistsForType(type[&T] t, str constrName)
   = /constr:\cons(label(constrName,_), _, _, _) := t.definitions;
 
-map[str,value] locToRange(loc l) = ("start":  ("line": l.begin.line, "character": l.begin.column),
-                                    "end":    ("line": l.end.line,   "character": l.end.column ));
+// Locations in Rascal start at 0 for columns, yet at 1 for lines
+// Subtract 1 off line numbers to line them up with the protocol
+map[str,value] locToRange(loc l) = ("start":  ("line": l.begin.line - 1, "character": l.begin.column),
+                                    "end":    ("line": l.end.line - 1,   "character": l.end.column ));
+
+int convertMessageLevel(Message m) {
+  if (m is error)     return diagSeverity["Error"];
+  if (m is warning)   return diagSeverity["Warning"];
+  if (m is info)      return diagSeverity["Information"];
+  return diagSeverity["Hint"];
+}
 
 list[str] findParameters(type[&T] t, Symbol s, str constrName) {
   defs = t.definitions[s].alternatives;
